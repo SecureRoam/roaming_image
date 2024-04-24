@@ -1,22 +1,20 @@
 #!/bin/bash
-service dhcpcd stop
 # Based on a combination of: http://www.isticktoit.net/?p=1383
 #   and: https://www.raspberrypi.org/forums/viewtopic.php?t=260107
 #   and: https://gist.github.com/schlarpc/a327d4aa735f961555e02cbe45c11667/c80d8894da6c716fb93e5c8fea98899c9aab8d89
 #   and: https://github.com/ev3dev/ev3-systemd/blob/02caecff9138d0f4dcfeb5afbee67a0bb689cec0/scripts/ev3-usb.sh
 
 configfs="/sys/kernel/config/usb_gadget"
-this="${configfs}/libComposite"
+this="${configfs}/secureRoamCompanion"
 
 # Configure values
 serial="$(grep 'Serial' /proc/cpuinfo | head -n 1 | sed -E -e 's/^Serial\s+:\s+0000(.+)/\1/')"
 model="$(grep 'Model' /proc/cpuinfo | head -n 1 | sed -E -e 's/^Model\s+:\s+(.+)/\1/')"
-manufacturer="Raspberry Pi Foundation"
-
+manufacturer="Secure Roam Companion"
 # The serial number ends in a mac-like address. Let's use this to build a MAC address.
 #   The first binary xxxxxx10 octet "locally assigned, unicast" which means we can avoid
 #   conflicts with other vendors.
-mac_base="$(echo "${serial}" | sed 's/\(\w\w\)/:\1/g' | cut -b 4-)"
+mac_base="$(echo "${serial}" | sed 's/\(\w\w\)/:\1/g' | cut -b 3-)"
 ecm_mac_address_dev="02${mac_base}"  # ECM/CDC address for the Pi end
 ecm_mac_address_host="12${mac_base}" # ECM/CDC address for the "host" end that the Pi is plugged into
 rndis_mac_address_dev="22${mac_base}"  # RNDIS address for the Pi end
@@ -48,7 +46,7 @@ echo "0x4000"                      > "${this}/bcdDevice"
 mkdir -p "${this}/os_desc"
 echo "1"                           > "${this}/os_desc/use"           # Enable OS Descriptors
 echo "0xcd"                        > "${this}/os_desc/b_vendor_code" # Extended feature descriptor: MS
-echo "MSFT100"                     > "${this}/os_desc/qw_sign"       # OS String "proper"
+echo "MICROSOFT"                     > "${this}/os_desc/qw_sign"       # OS String "proper"
 
 # Configure the strings the device presents itself as
 mkdir -p "${this}/strings/0x409"
@@ -81,7 +79,7 @@ echo "${rndis_mac_address_dev}"    > "${this}/functions/rndis.usb0/dev_addr"
 echo "RNDIS"                       > "${this}/configs/c.2/strings/0x409/configuration"
 ln -s "${this}/configs/c.2"          "${this}/os_desc"
 ln -s "${this}/functions/rndis.usb0" "${this}/configs/c.2/"
+# Check the operating system of the connected device
 
-udevadm settle -t 5 || true
-#ls /sys/class/udc > 
-#${this}/UDC
+udevadm settle -t 5 || :
+ls /sys/class/udc >"${this}/UDC"

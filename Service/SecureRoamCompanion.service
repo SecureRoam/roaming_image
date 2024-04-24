@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Secure Roam Device
+Before=PreLed.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /root/usb.sh
+
+[Install]
+WantedBy=multi-user.target

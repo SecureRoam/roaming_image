@@ -1,9 +1,0 @@
-[Unit]
-Description=Start libComposite
-
-[Service]
-Type=oneshot
-ExecStart=/root/usb.sh
-
-[Install]
-WantedBy=multi-user.target

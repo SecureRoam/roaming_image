@@ -1,0 +1,11 @@
+[Unit]
+Description=Pre init Led Service
+Before=plymouth-read-write.service
+
+[Service]
+type=oneshot
+ExecStart= /bin/bash /etc/LedService/startup.sh
+
+
+[Install]
+WantedBy=multi-user.target
